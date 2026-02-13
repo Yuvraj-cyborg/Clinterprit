@@ -1,7 +1,7 @@
 #include<stdio.h>
 #define INPUT_LEN 1024
 
-void calculate()
+void calculate();
 
 void parse_expressions(char* input) {
   int i=0;
