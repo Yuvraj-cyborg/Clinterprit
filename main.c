@@ -1,23 +1,33 @@
 #include<stdio.h>
+#include<stddef.h>
 #define INPUT_LEN 1024
 
-void calculate();
+typedef enum {
+  NUMBER,
+  ADD,
+  SUBTRACT,
+  MULTIPLY,
+  DIVIDE,
+  EOF,
+}TokenType;
+
+typedef struct {
+  TokenType type;
+  int value;
+}Token;
+
+//void calculate();
 
 void parse_expressions(char* input) {
-  int i=0;
-  while(input[i] != '\0') {
+  while(*input != '\0') {    
     input
   }
 }
 
-void interpret(char* input){
-  char c;
-  while((c = *input) != '\0') {
-    printf("%c\n",c);
-    input++;
-  }
-};
-
+void lexer(char* input) {
+  Token input; 
+  while(*input != '\0')
+}
 
 int main() {
   char buff[INPUT_LEN];
@@ -25,7 +35,8 @@ int main() {
   while (1) {
     printf(">>>");
     fgets(buff,sizeof(buff),stdin);
-    interpret(buff);
+    //calc(buff);
+    lexer(buff);
   }
 
   return 0;
