@@ -1,0 +1,44 @@
+name: islo PR review
+
+# Fires the deployed `islo-review` durable job on each PR. The job runs in an
+# Islo sandbox and posts its review to the PR via gh (authenticated through the
+# Islo gateway — no GitHub token is used from this workflow).
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# The review is posted by the Islo sandbox, not by this workflow, so it only
+# needs read access.
+permissions:
+  contents: read
+
+jobs:
+  islo-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install islo CLI
+        run: |
+          curl -fsSL https://islo.dev/install.sh | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Trigger islo-review
+        env:
+          ISLO_API_KEY: ${{ secrets.ISLO_API_KEY }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          set -euo pipefail
+          # Stable per-PR sandbox name matching the job's pattern:
+          #   ^islo-review-[a-f0-9]{12}-[0-9]+$
+          HASH="$(printf '%s' "$REPO" | sha256sum | cut -c1-12)"
+          SANDBOX="islo-review-${HASH}-${PR}"
+          islo job run islo-review --watch \
+            --param repo="$REPO" \
+            --param pr_number="$PR" \
+            --param head_ref="$HEAD_REF" \
+            --param base_ref="$BASE_REF" \
+            --param sandbox_name="$SANDBOX" \
+            --param agents_ref="main"
